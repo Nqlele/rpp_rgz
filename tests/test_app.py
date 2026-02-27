@@ -1,18 +1,31 @@
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from app import app, db
 from models import User, Article, Comment, LoginAttempt, IPRateLimit
+
+class TestConfig:
+    TESTING = True
+    WTF_CSRF_ENABLED = False
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 @pytest.fixture
 def client():
     app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['WTF_CSRF_ENABLED'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    with app.app_context():
+        engine = db.engine
+        with engine.begin() as conn:
+            for table in reversed(db.metadata.sorted_tables):
+                conn.execute(table.delete())
+        db.create_all()
     
     with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-            yield client
-            db.drop_all()
+        yield client
 
 @pytest.fixture
 def auth_client(client):
