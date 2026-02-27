@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Блог{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-brand">
+                <a href="{{ url_for('get_articles_page') }}">Блог</a>
+            </div>
+            <div class="nav-links">
+                {% if current_user.is_authenticated %}
+                    <span>Привет, {{ current_user.username }}!</span>
+                    <a href="{{ url_for('create_article_page') }}">Новая статья</a>
+                    <a href="{{ url_for('logout_page') }}">Выйти</a>
+                {% else %}
+                    <a href="{{ url_for('login_page') }}">Войти</a>
+                    <a href="{{ url_for('register_page') }}">Регистрация</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash-message">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Блог. Все права защищены.</p>
+    </footer>
+</body>
+</html>

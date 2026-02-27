@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block content %}
+<div class="article-full">
+    <h1>{{ article.title }}</h1>
+    <div class="article-meta">
+        Автор: {{ article.author_username }} | {{ article.created_at.strftime('%d.%m.%Y %H:%M') }}
+        {% if article.updated_at != article.created_at %}
+        | Обновлено: {{ article.updated_at.strftime('%d.%m.%Y %H:%M') }}
+        {% endif %}
+    </div>
+    
+    {% if current_user.is_authenticated and current_user.id == article.author_id %}
+    <div class="article-actions" style="margin-bottom: 1.5rem;">
+        <a href="{{ url_for('update_article_page', article_id=article.id) }}" class="btn btn-secondary">Редактировать</a>
+        <form action="{{ url_for('delete_article_page', article_id=article.id) }}" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены?')">Удалить</button>
+        </form>
+    </div>
+    {% endif %}
+    
+    <div class="article-content" style="font-size: 1.1rem; line-height: 1.8;">
+        {{ article.content }}
+    </div>
+    
+    <div class="comments-section">
+        <h2>Комментарии ({{ comments|length }})</h2>
+        
+        {% if current_user.is_authenticated %}
+        <form method="POST" style="margin: 1.5rem 0;">
+            <div class="form-group">
+                <label for="content">Добавить комментарий</label>
+                <textarea id="content" name="content" rows="3" required placeholder="Напишите ваш комментарий..."></textarea>
+            </div>
+            <button type="submit" class="btn">Отправить</button>
+        </form>
+        {% else %}
+        <p style="margin: 1rem 0; color: #7f8c8d;">
+            <a href="{{ url_for('login_page') }}">Войдите</a>, чтобы оставить комментарий.
+        </p>
+        {% endif %}
+        
+        {% if comments %}
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-meta">
+                    <strong>{{ comment.author_username }}</strong> | {{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}
+                </div>
+                <p>{{ comment.content }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: #7f8c8d; margin-top: 1rem;">Пока нет комментариев.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div style="margin-top: 1rem;">
+    <a href="{{ url_for('get_articles_page') }}" class="btn btn-secondary">Назад к списку</a>
+</div>
+{% endblock %}

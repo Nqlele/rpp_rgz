@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Статьи{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="actions-row">
+        <h1>Статьи</h1>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_article_page') }}" class="btn">Новая статья</a>
+        {% endif %}
+    </div>
+    
+    {% if articles %}
+    <div class="articles-list">
+        {% for article in articles %}
+        <div class="article-card">
+            <h2><a href="{{ url_for('get_article_page', article_id=article.id) }}">{{ article.title }}</a></h2>
+            <div class="article-meta">
+                Автор: {{ article.author_username }} | {{ article.created_at.strftime('%d.%m.%Y %H:%M') }}
+            </div>
+            <p class="article-content">{{ article.content[:200] }}{% if article.content|length > 200 %}...{% endif %}</p>
+            <div class="article-actions">
+                <a href="{{ url_for('get_article_page', article_id=article.id) }}" class="btn btn-secondary">Читать далее</a>
+                {% if current_user.is_authenticated and current_user.id == article.author_id %}
+                <a href="{{ url_for('update_article_page', article_id=article.id) }}" class="btn btn-secondary">Редактировать</a>
+                <form action="{{ url_for('delete_article_page', article_id=article.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены?')">Удалить</button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>Пока нет статей. Будьте первым автором!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

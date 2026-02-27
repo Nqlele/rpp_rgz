@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{% if article %}Редактирование статьи{% else %}Новая статья{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>{% if article %}Редактирование статьи{% else %}Новая статья{% endif %}</h1>
+    
+    {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+    
+    <form method="POST" class="article-form">
+        <div class="form-group">
+            <label for="title">Заголовок</label>
+            <input type="text" id="title" name="title" value="{{ article.title if article else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Содержание</label>
+            <textarea id="content" name="content" required>{{ article.content if article else '' }}</textarea>
+        </div>
+        
+        <button type="submit" class="btn">{% if article %}Сохранить{% else %}Опубликовать{% endif %}</button>
+        <a href="{{ url_for('get_articles_page') }}" class="btn btn-secondary" style="margin-left: 10px;">Отмена</a>
+    </form>
+</div>
+{% endblock %}
